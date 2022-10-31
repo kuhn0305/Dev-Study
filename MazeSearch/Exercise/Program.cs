@@ -5,7 +5,7 @@ namespace Exercise
 {
     static class Graph
     {
-        static public int[,] adj = new int[6, 6]
+        public static int[,] adj = new int[6, 6]
         {
             { 0, 1, 0, 1, 0, 0 },
             { 1, 0, 1, 1, 0, 0 },
@@ -24,6 +24,16 @@ namespace Exercise
             new List<int>() { 3, 5 },
             new List<int>() { 4 },
         };
+
+        public static int[,] adjDijikstra = new int[6, 6]
+        {
+            { -1, 15, -1, 35, -1, -1 },
+            { 15, -1, 05, 10, -1, -1 },
+            { -1, 05, -1, -1, -1, -1 },
+            { 35, 10, -1, -1, 05, -1 },
+            { -1, -1, -1, 05, -1, 05 },
+            { -1, -1, -1, -1, 05, -1 },
+        };
     }
 
     class Parogram
@@ -35,9 +45,75 @@ namespace Exercise
             // BFS (Breadth First Search 너비 우선 탐색)
             // Queue 사용
 
-            BFS(0);
+            Dijikstra(3);
         }
 
+
+        public static void Dijikstra(int start)
+        {
+            bool[] visited = new bool[6];
+            int[] distance = new int[6];
+            int[] parent = new int[6];
+            Array.Fill(distance, Int32.MaxValue);
+
+            distance[start] = 0;
+            parent[start] = start;
+
+            while(true)
+            {
+                // 가장 유력한 후보의 거리와 노드번호를 저장한다.
+                int closest = Int32.MaxValue;
+                int now = -1;
+
+                // 제일 좋은 후보를 찾는다 (가장 가까이에 있는)
+                for (int i = 0; i < 6; i++)
+                {
+                    // 이미 방문한 노드는 PASS
+                    if (visited[i])
+                        continue;
+
+                    // 한번도 계산된 적이 없다 또는 현재 가장 가까운 노드보다 멀다
+                    if (distance[i] == Int32.MaxValue || distance[i] >= closest)
+                        continue;
+
+                    // 여태껏 발견한 후보라는 의미, 정보를 갱신
+                    closest = distance[i];
+                    now = i;
+                }
+
+                // 다음 후보가 하나도 없다 -> 종료
+                if (now == -1)
+                    break;
+
+                // 제일 좋은 후보를 찾았으니까 방문한다.
+                visited[now] = true;
+
+                // 방문한 노드와 인접한 노드들을 조사해서
+                // 상황에 따라 발견한 최단거리를 갱신한다.
+                for(int next =0; next < 6; next++)
+                {
+                    // 이미 방문한 노드는 PASS
+                    if (visited[next])
+                        continue;
+
+                    // 연결되지 않은 노드 스킵
+                    if (Graph.adjDijikstra[now, next] == -1)
+                        continue;
+
+                    // 새로 조사된 노드의 최단거리를 계산한다.
+                    int nextDistance = distance[now] + Graph.adjDijikstra[now,next];
+                    // 만약에 기존에 발견한 최단거리가 새로 조사된 최단거리보다 크면, 정보를 갱신
+                    if(nextDistance < distance[next])
+                    {
+                        distance[next] = nextDistance;
+                        parent[next] = now;
+                    }
+                }
+
+            }
+
+
+        }
 
         static bool[] visited = new bool[6];
         // 1) 우선 now부터 방문을 한다.

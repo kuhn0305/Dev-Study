@@ -46,7 +46,13 @@ namespace MazeSearch
             PosY = posY;
             _board = board;
 
-            BFS();
+            //BFS();
+            Dijikstra();
+        }
+
+        private void Dijikstra()
+        {
+
         }
 
         private void BFS()
