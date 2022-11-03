@@ -52,7 +52,11 @@ namespace MazeSearch
 
         private void Dijikstra()
         {
+            bool[,] visited = new bool[_board.Size, _board.Size];
+            int[,] distance = new int[_board.Size, _board.Size];
+            int[,] parent = new int[_board.Size, _board.Size];
 
+            Array.Fill(distance, Int32.MaxValue);
         }
 
         private void BFS()

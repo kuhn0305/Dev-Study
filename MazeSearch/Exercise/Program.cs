@@ -36,17 +36,103 @@ namespace Exercise
         };
     }
 
+    class TreeNode<T>
+    {
+        public T Data { get; set; }
+        public List<TreeNode<T>> Children { get; set; } = new List<TreeNode<T>>();
+
+        public TreeNode()
+        {
+
+        }
+
+        public TreeNode(T data, List<TreeNode<T>> children)
+        {
+            Data = data;
+            Children = children;
+        }
+
+        public TreeNode(T data)
+        {
+            Data = data;
+        }
+    }
+
     class Parogram
     {
         static void Main(string[] args)
         {
-            // DFS (Depth First Search 깊이 우선 탐색)
-            // 재귀, Stack 사용
-            // BFS (Breadth First Search 너비 우선 탐색)
-            // Queue 사용
+            TreeNode<string> root = MakeTree();
 
-            Dijikstra(3);
+            PrintTree(root);
+
+            Console.WriteLine(GetHeight(root));
         }
+
+        private static TreeNode<string> MakeTree()
+        {
+            TreeNode<string> root = new TreeNode<string>() { Data = "R1 개발실" };
+            {
+                {
+                    TreeNode<string> node = new TreeNode<string>() { Data = "디자인팀" };
+
+                    TreeNode<string> child1 = new TreeNode<string>() { Data = "전투" };
+                    child1.Children.Add(new TreeNode<string>() { Data = "1" });
+                    child1.Children.Add(new TreeNode<string>() { Data = "2" });
+                    node.Children.Add(child1);
+
+                    node.Children.Add(new TreeNode<string>() { Data = "전투" });
+                    node.Children.Add(new TreeNode<string>() { Data = "경제" });
+                    node.Children.Add(new TreeNode<string>() { Data = "스토리"});
+                    node.Children.Add(new TreeNode<string>( "제페토", new List<TreeNode<string>>()
+                    {
+                        new TreeNode<string>() { Data ="박고니" }
+                    }));
+
+                    root.Children.Add(node);
+                }
+                {
+                    TreeNode<string> node = new TreeNode<string>() { Data = "프로그래밍 팀" };
+                    node.Children.Add(new TreeNode<string>() { Data = "서버" });
+                    node.Children.Add(new TreeNode<string>() { Data = "클라" });
+                    node.Children.Add(new TreeNode<string>() { Data = "엔진" });
+                    root.Children.Add(node);
+                }
+                {
+                    TreeNode<string> node = new TreeNode<string>() { Data = "아트팀" };
+                    //node.Children.Add(new TreeNode<string>() { Data = "배경" });
+                    //node.Children.Add(new TreeNode<string>() { Data = "캐릭터" });
+                    //root.Children.Add(node);
+                }
+            }
+
+            return root;
+        }
+
+        private static void PrintTree(TreeNode<string> root)
+        {
+            Console.WriteLine(root.Data);
+
+            foreach (TreeNode<string> child in root.Children)
+                PrintTree(child);
+        }
+
+        static int GetHeight(TreeNode<string> root)
+        {
+            int height = 0;
+
+            foreach(TreeNode<string> child in root.Children)
+            {
+                int newHeight = GetHeight(child) + 1;
+
+                if (height < newHeight)
+                    height = newHeight;
+            }
+
+            return height;
+        }
+
+
 
 
         public static void Dijikstra(int start)
