@@ -56,7 +56,7 @@ namespace MazeSearch
             int[,] distance = new int[_board.Size, _board.Size];
             int[,] parent = new int[_board.Size, _board.Size];
 
-            Array.Fill(distance, Int32.MaxValue);
+            //Array.Fill(distance, Int32.MaxValue);
         }
 
         private void BFS()

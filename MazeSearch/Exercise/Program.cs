@@ -58,15 +58,116 @@ namespace Exercise
         }
     }
 
+    class Goni : IComparable<Goni>
+    {
+        public int Id { get; set; }
+
+        public int CompareTo(Goni other)
+        {
+            if (Id == other.Id)
+                return 0;
+
+            return Id > other.Id ? 1 : -1;
+        }
+    }
+
+    class PriorityQueue<T> where T : IComparable<T>
+    {
+        List<T> heap = new List<T>();
+
+        public void Push(T data)
+        {
+            // 힙의 맨 끝에 새로운 데이터를 삽입한다.
+            heap.Add(data);
+
+            // 힙의 맨 끝에 데이터를 넣어줬기 때문에 마지막 인덱스에서 시작한다.
+            int now = heap.Count - 1;
+
+            // 등반신 도장깨기 시작
+            while (now > 0)
+            {
+                // 도장깨기 시도
+                int next = (now - 1) / 2;
+
+                // 자식의 노드가 부모의 노드보다 작다 == 본래의 위치다
+                if (heap[now].CompareTo(heap[next]) < 0)
+                    break;
+
+                // 자식의 노드가 부모의 노드보다 크다
+                // 두 값을 교체한다
+                T temp = heap[now];
+                heap[now] = heap[next];
+                heap[next] = temp;
+
+                // 검사 위치를 이동한다.
+                now = next;
+            }
+        }
+
+        public T Pop()
+        {
+            T ret = heap[0];
+
+            // 마지막 데이터를 루트로 이동한다.
+            int last = heap.Count - 1;
+            heap[0] = heap[last];
+            heap.RemoveAt(last);
+            last--;
+
+            // 역으로 내려가는 도장깨기 시작
+            int now = 0;
+            while (true)
+            {
+                int left = 2 * now + 1;
+                int right = 2 * now + 2;
+
+                int next = now;
+
+                // 왼쪽값이 현재값보다 크면, 왼쪽으로 이동
+                if (left <= last && heap[next].CompareTo(heap[left]) < 0)
+                    next = left;
+                // 오른쪽값이 현재값(왼쪽 이동 포함)보다 크면, 오른쪽으로 이동
+                if (right <= last && heap[next].CompareTo(heap[right]) < 0)
+                    next = right;
+
+                // 탐색을 노드 마지막까지 왔으면 루프 종료
+                if (next == now)
+                    break;
+
+                // 두 값을 교체한다.
+                T temp = heap[now];
+                heap[now] = heap[next];
+                heap[next] = temp;
+
+                // 검사 위치를 이동한다.
+                now = next;
+
+            }
+
+            return ret;
+        }
+
+        public int Count()
+        {
+            return heap.Count;
+        }
+    }
+
+
     class Parogram
     {
         static void Main(string[] args)
         {
-            TreeNode<string> root = MakeTree();
+            PriorityQueue<Goni> priorityQueue = new PriorityQueue<Goni>();
 
-            PrintTree(root);
+            priorityQueue.Push(new Goni() { Id = 20 });
+            priorityQueue.Push(new Goni() { Id = 10 });
+            priorityQueue.Push(new Goni() { Id = 30 });
+            priorityQueue.Push(new Goni() { Id = 90 });
+            priorityQueue.Push(new Goni() { Id = 40 });
 
-            Console.WriteLine(GetHeight(root));
+            while (priorityQueue.Count() > 0)
+                Console.WriteLine(priorityQueue.Pop().Id);
         }
 
         private static TreeNode<string> MakeTree()
@@ -83,8 +184,8 @@ namespace Exercise
 
                     node.Children.Add(new TreeNode<string>() { Data = "전투" });
                     node.Children.Add(new TreeNode<string>() { Data = "경제" });
-                    node.Children.Add(new TreeNode<string>() { Data = "스토리"});
-                    node.Children.Add(new TreeNode<string>( "제페토", new List<TreeNode<string>>()
+                    node.Children.Add(new TreeNode<string>() { Data = "스토리" });
+                    node.Children.Add(new TreeNode<string>("제페토", new List<TreeNode<string>>()
                     {
                         new TreeNode<string>() { Data ="박고니" }
                     }));
@@ -121,7 +222,7 @@ namespace Exercise
         {
             int height = 0;
 
-            foreach(TreeNode<string> child in root.Children)
+            foreach (TreeNode<string> child in root.Children)
             {
                 int newHeight = GetHeight(child) + 1;
 
@@ -145,7 +246,7 @@ namespace Exercise
             distance[start] = 0;
             parent[start] = start;
 
-            while(true)
+            while (true)
             {
                 // 가장 유력한 후보의 거리와 노드번호를 저장한다.
                 int closest = Int32.MaxValue;
@@ -176,7 +277,7 @@ namespace Exercise
 
                 // 방문한 노드와 인접한 노드들을 조사해서
                 // 상황에 따라 발견한 최단거리를 갱신한다.
-                for(int next =0; next < 6; next++)
+                for (int next = 0; next < 6; next++)
                 {
                     // 이미 방문한 노드는 PASS
                     if (visited[next])
@@ -187,9 +288,9 @@ namespace Exercise
                         continue;
 
                     // 새로 조사된 노드의 최단거리를 계산한다.
-                    int nextDistance = distance[now] + Graph.adjDijikstra[now,next];
+                    int nextDistance = distance[now] + Graph.adjDijikstra[now, next];
                     // 만약에 기존에 발견한 최단거리가 새로 조사된 최단거리보다 크면, 정보를 갱신
-                    if(nextDistance < distance[next])
+                    if (nextDistance < distance[next])
                     {
                         distance[next] = nextDistance;
                         parent[next] = now;
@@ -212,7 +313,7 @@ namespace Exercise
             visited[now] = true;
 
             // now 노드와 인접한 노드를 탐색한다.
-            for(int next = 0; next < 6; next++)
+            for (int next = 0; next < 6; next++)
             {
                 // 이미 방문한 노드면 PASS
                 if (visited[next])
@@ -236,7 +337,7 @@ namespace Exercise
             visited[start] = true;
 
             // 모든 탐색을 마칠 때까지 반복한다.
-            while(stack.Count > 0)
+            while (stack.Count > 0)
             {
                 // 예정되어있던 노드를 방문한다. (now 노드)
                 int now = stack.Pop();
@@ -244,7 +345,7 @@ namespace Exercise
                 Console.WriteLine(now);
 
                 // now 노드와 인접한 모든 노드를 찾아낸다.
-                for(int next = 6 - 1; next >= 0; next--)
+                for (int next = 6 - 1; next >= 0; next--)
                 {
                     // 간선으로 연결이 되어있지 않으면 PASS
                     if (Graph.adj[now, next] == 0)
@@ -268,7 +369,7 @@ namespace Exercise
             // 모든 노드를 돌면서 DFS를 실행시킨다.
             // why? 모든 노드가 연결되어있지 않으면, 탐색이 안될 수 있기 때문에
             // 모든 노드가 방문되어 있는지 다시금 확인해준다.
-            for(int now = 0; now < 6; now++)
+            for (int now = 0; now < 6; now++)
             {
                 if (visited[now] == false)
                     DFS(now);
@@ -292,14 +393,14 @@ namespace Exercise
             distance[start] = 0;
 
             // 모든 노드를 탐색할 때까지 반복
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 // 예정되어있던 노드를 방문한다. (now 노드)
                 int now = queue.Dequeue();
                 Console.WriteLine(now);
 
                 // now 노드와 연결된 접점을 찾는다.
-                for(int next = 0; next < 6; next++)
+                for (int next = 0; next < 6; next++)
                 {
                     // now노드와 연결되어있지 않으면 PASS
                     if (Graph.adj[now, next] == 0)
